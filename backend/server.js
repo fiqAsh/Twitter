@@ -3,7 +3,7 @@ import authRoutes from "./routes/auth.routes.js";
 import dotenv from "dotenv";
 import connectMongoDB from "./db/connectMongoDB.js";
 import cookieParser from "cookie-parser";
-
+import userRoutes from "./routes/user.routes.js";
 dotenv.config();
 
 const app = express();
@@ -14,6 +14,7 @@ app.use(express.urlencoded({ extended: true })); //to parse from data (urlencode
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 app.listen(PORT, () => {
 	console.log(`server is running on ${PORT}`);
