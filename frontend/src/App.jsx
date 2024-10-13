@@ -59,11 +59,7 @@ function App() {
 					<Route
 						path="/login"
 						element={
-							!authUser ? (
-								<LoginPage></LoginPage>
-							) : (
-								<Navigate to="/"></Navigate>
-							)
+							!authUser ? <LoginPage></LoginPage> : <Navigate to="/"></Navigate>
 						}
 					></Route>
 					<Route
