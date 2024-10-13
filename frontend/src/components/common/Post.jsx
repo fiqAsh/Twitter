@@ -6,7 +6,8 @@ import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import toast from "react-hot-toast";
+import { toast } from "react-hot-toast";
+
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 
@@ -16,6 +17,7 @@ const Post = ({ post }) => {
 	const queryClient = useQueryClient();
 	const postOwner = post.user;
 	const isLiked = post.likes.includes(authUser._id);
+
 	const isMyPost = authUser._id === post.user._id;
 
 	const formattedDate = formatPostDate(post.createdAt);
@@ -23,13 +25,13 @@ const Post = ({ post }) => {
 	const { mutate: deletePost, isPending: isDeleting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`api/posts/${post._id}`, {
+				const res = await fetch(`/api/posts/${post._id}`, {
 					method: "DELETE",
 				});
 				const data = await res.json();
 
 				if (!res.ok) {
-					throw new Error(data.error || "something went wrong");
+					throw new Error(data.error || "Something went wrong");
 				}
 				return data;
 			} catch (error) {
@@ -37,7 +39,7 @@ const Post = ({ post }) => {
 			}
 		},
 		onSuccess: () => {
-			toast.success("post deleted successfully");
+			toast.success("Post deleted successfully");
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 		},
 	});
@@ -50,7 +52,7 @@ const Post = ({ post }) => {
 				});
 				const data = await res.json();
 				if (!res.ok) {
-					throw new Error(data.error || "something went wrong");
+					throw new Error(data.error || "Something went wrong");
 				}
 				return data;
 			} catch (error) {
@@ -58,10 +60,10 @@ const Post = ({ post }) => {
 			}
 		},
 		onSuccess: (updatedLikes) => {
-			//this is not best UX bc it will refetch all posts
-			//queryClient.invalidateQueries({ queryKey: ["posts"] });
+			// this is not the best UX, bc it will refetch all posts
+			// queryClient.invalidateQueries({ queryKey: ["posts"] });
 
-			//instead update the cache directly
+			// instead, update the cache directly for that post
 			queryClient.setQueryData(["posts"], (oldData) => {
 				return oldData.map((p) => {
 					if (p._id === post._id) {
@@ -79,7 +81,7 @@ const Post = ({ post }) => {
 	const { mutate: commentPost, isPending: isCommenting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`api/posts/comments/${post._id}`, {
+				const res = await fetch(`/api/posts/comment/${post._id}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -89,7 +91,7 @@ const Post = ({ post }) => {
 				const data = await res.json();
 
 				if (!res.ok) {
-					throw new Error(data.error || "something went wrong");
+					throw new Error(data.error || "Something went wrong");
 				}
 				return data;
 			} catch (error) {
@@ -97,11 +99,11 @@ const Post = ({ post }) => {
 			}
 		},
 		onSuccess: () => {
-			toast.success("comment posted succesfully");
+			toast.success("Comment posted successfully");
 			setComment("");
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 		},
-		onError: () => {
+		onError: (error) => {
 			toast.error(error.message);
 		},
 	});
@@ -152,7 +154,8 @@ const Post = ({ post }) => {
 										onClick={handleDeletePost}
 									/>
 								)}
-								{isDeleting && <LoadingSpinner size="sm"></LoadingSpinner>}
+
+								{isDeleting && <LoadingSpinner size="sm" />}
 							</span>
 						)}
 					</div>
@@ -231,11 +234,7 @@ const Post = ({ post }) => {
 											onChange={(e) => setComment(e.target.value)}
 										/>
 										<button className="btn btn-primary rounded-full btn-sm text-white px-4">
-											{isCommenting ? (
-												<LoadingSpinner size="md"></LoadingSpinner>
-											) : (
-												"Post"
-											)}
+											{isCommenting ? <LoadingSpinner size="md" /> : "Post"}
 										</button>
 									</form>
 								</div>
@@ -253,7 +252,7 @@ const Post = ({ post }) => {
 								className="flex gap-1 items-center group cursor-pointer"
 								onClick={handleLikePost}
 							>
-								{isLiking && <LoadingSpinner size="sm"></LoadingSpinner>}
+								{isLiking && <LoadingSpinner size="sm" />}
 								{!isLiked && !isLiking && (
 									<FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
 								)}
