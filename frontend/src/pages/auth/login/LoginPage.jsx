@@ -5,14 +5,14 @@ import XSvg from "../../../components/svgs/X";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
-import { useMutation } from "react-query";
-import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "react-query";
 
 const LoginPage = () => {
 	const [formData, setFormData] = useState({
 		username: "",
 		password: "",
 	});
+	const queryClient = useQueryClient();
 
 	const {
 		mutate: loginMutation,
@@ -40,7 +40,9 @@ const LoginPage = () => {
 			}
 		},
 		onSuccess: () => {
-			toast.success("login successful");
+			//refetch the authuser
+
+			queryClient.invalidateQueries({ queryKey: ["authUser"] });
 		},
 	});
 
