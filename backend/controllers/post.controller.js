@@ -13,9 +13,7 @@ export const createPost = async (req, res) => {
 		const user = await User.findById(userId);
 		if (!user) return res.status(400).json({ message: "user not found" });
 		if (!text && !img) {
-			return res
-				.status(400)
-				.json({ message: "post must have text or image" });
+			return res.status(400).json({ message: "post must have text or image" });
 		}
 		const newPost = new Post({
 			user: userId,
@@ -108,19 +106,17 @@ export const likeUnlikePost = async (req, res) => {
 			//unlike post
 			await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
 
-			await User.updateOne(
-				{ _id: userId },
-				{ $pull: { likedPosts: postId } }
+			await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
+
+			const updatedLikes = post.likes.filter(
+				(id) => id.toString() !== userId.toString()
 			);
 
-			res.status(200).json({ message: "post unliked successfully" });
+			res.status(200).json(updatedLikes);
 		} else {
 			//like post
 			post.likes.push(userId);
-			await User.updateOne(
-				{ _id: userId },
-				{ $push: { likedPosts: postId } }
-			);
+			await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } });
 
 			await post.save();
 
@@ -130,8 +126,9 @@ export const likeUnlikePost = async (req, res) => {
 				type: "like",
 			});
 			await notification.save();
+			const updatedLikes = post.likes;
 
-			res.status(200).json({ message: "post liked successfully" });
+			res.status(200).json(updatedLikes);
 		}
 	} catch (error) {
 		console.log("error in likeUnlike cotroller", error);
